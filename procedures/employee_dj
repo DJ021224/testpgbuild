@@ -1,0 +1,13 @@
+CREATE OR REPLACE PROCEDURE employee_dj(
+    p_department VARCHAR,
+    p_increment NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE employee
+    SET title = "dj";
+
+    RAISE NOTICE 'Salary updated successfully.';
+END;
+$$;
