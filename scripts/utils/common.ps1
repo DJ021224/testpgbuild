@@ -39,8 +39,12 @@ function Invoke-PSQLScript {
         return @{ ExitCode = 1; Output = "Script not found: $ScriptPath" }
     }
     $env:PGPASSWORD = $DBPassword
+    # Pipe through ForEach-Object to convert NativeCommandError (from psql NOTICE
+    # messages on stderr) to plain strings — prevents $ErrorActionPreference=Stop
+    # from treating informational NOTICE output as a fatal error.
     $output   = & psql -h $DBHost -p $DBPort -U $DBUser -d $DBName `
-                       -v ON_ERROR_STOP=1 -f $ScriptPath 2>&1
+                       -v ON_ERROR_STOP=1 -f $ScriptPath 2>&1 |
+                ForEach-Object { "$_" }
     $exitCode = $LASTEXITCODE
     $env:PGPASSWORD = $null
     return @{ ExitCode = $exitCode; Output = ($output -join "`n") }
@@ -57,7 +61,8 @@ function Invoke-PSQLCommand {
     )
     $env:PGPASSWORD = $DBPassword
     $output   = & psql -h $DBHost -p $DBPort -U $DBUser -d $DBName `
-                       -v ON_ERROR_STOP=1 -c $Command 2>&1
+                       -v ON_ERROR_STOP=1 -c $Command 2>&1 |
+                ForEach-Object { "$_" }
     $exitCode = $LASTEXITCODE
     $env:PGPASSWORD = $null
     return @{ ExitCode = $exitCode; Output = ($output -join "`n") }
