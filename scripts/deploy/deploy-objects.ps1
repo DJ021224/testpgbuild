@@ -1,7 +1,7 @@
-# ============================================================
+﻿# ============================================================
 # Module : deploy-objects.ps1
-# Purpose: Deploy all database objects — procedures, functions,
-#          and views — in the correct dependency order.
+# Purpose: Deploy all database objects -- procedures, functions,
+#          and views -- in the correct dependency order.
 #          Objects are idempotent (CREATE OR REPLACE).
 # Usage  : .\deploy-objects.ps1 -DBHost localhost -DBUser admin -DBPassword admin@123
 # ============================================================
@@ -25,7 +25,7 @@ if (-not (Get-CurrentBuildId)) {
 
 Write-Log "DEPLOY DATABASE OBJECTS" -Level SECTION
 
-# Deployment order matters: functions → procedures → views
+# Deployment order matters: functions -> procedures -> views
 $objectDirs = @(
     @{ Path = "$RootDir\database\functions";  Label = "Functions"  },
     @{ Path = "$RootDir\database\procedures"; Label = "Procedures" },
@@ -51,7 +51,7 @@ foreach ($dir in $objectDirs) {
         $r = Invoke-PSQLScript -DBHost $DBHost -DBPort $DBPort -DBUser $DBUser `
                                 -DBPassword $DBPassword -DBName $DBName -ScriptPath $file.FullName
         if ($r.ExitCode -ne 0) {
-            Write-Log "FAILED: $($file.Name) — $($r.Output)" -Level ERROR
+            Write-Log "FAILED: $($file.Name) -- $($r.Output)" -Level ERROR
             $totalFailed++
         } else {
             Write-Log "OK: $($file.Name)" -Level SUCCESS

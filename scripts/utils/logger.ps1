@@ -1,6 +1,6 @@
-# ============================================================
+﻿# ============================================================
 # Module : logger.ps1
-# Purpose: Structured logging — console + file output
+# Purpose: Structured logging -- console + file output
 # ============================================================
 
 $script:LogFile = $null
@@ -17,7 +17,7 @@ function Initialize-Logger {
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
     $header = @"
 ================================================================
-  TESTPGBUILD — Build Log
+  TESTPGBUILD -- Build Log
   Build ID : $BuildId
   Started  : $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
   Machine  : $env:COMPUTERNAME

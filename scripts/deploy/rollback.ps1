@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # Module : rollback.ps1
 # Purpose: Roll back the last N applied migrations by running
 #          the matching R*.sql scripts in database\rollback\.
@@ -58,7 +58,7 @@ foreach ($ver in $targets) {
     $r = Invoke-PSQLScript -DBHost $DBHost -DBPort $DBPort -DBUser $DBUser `
                             -DBPassword $DBPassword -DBName $DBName -ScriptPath $rbFile.FullName
     if ($r.ExitCode -ne 0) {
-        Write-Log "Rollback FAILED for V$ver — $($r.Output)" -Level ERROR
+        Write-Log "Rollback FAILED for V$ver -- $($r.Output)" -Level ERROR
         exit 1
     }
 

@@ -1,6 +1,6 @@
-# ============================================================
+﻿# ============================================================
 # Module : test-connection.ps1
-# Purpose: Smoke test — verify psql connectivity and that
+# Purpose: Smoke test -- verify psql connectivity and that
 #          key Chinook tables are accessible
 # Usage  : .\test-connection.ps1 -DBHost localhost -DBUser admin -DBPassword admin@123
 # ============================================================

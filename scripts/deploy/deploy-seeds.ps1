@@ -1,8 +1,8 @@
-# ============================================================
+﻿# ============================================================
 # Module : deploy-seeds.ps1
 # Purpose: Load sample / seed data into the database.
 #          Checks row counts to avoid double-seeding.
-#          Seed files are applied in numeric order (01_, 02_…)
+#          Seed files are applied in numeric order (01_, 02_...)
 # Usage  : .\deploy-seeds.ps1 -DBHost localhost -DBUser admin -DBPassword admin@123
 #           Add -Force to reseed even if data already exists
 # ============================================================
@@ -48,7 +48,7 @@ foreach ($file in $seedFiles) {
     $r = Invoke-PSQLScript -DBHost $DBHost -DBPort $DBPort -DBUser $DBUser `
                             -DBPassword $DBPassword -DBName $DBName -ScriptPath $file.FullName
     if ($r.ExitCode -ne 0) {
-        Write-Log "Seed FAILED: $($file.Name) — $($r.Output)" -Level ERROR
+        Write-Log "Seed FAILED: $($file.Name) -- $($r.Output)" -Level ERROR
         exit 1
     }
     Write-Log "Seed OK: $($file.Name)" -Level SUCCESS

@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # Module : deploy-migrations.ps1
 # Purpose: Apply all pending versioned migrations in order.
 #          Skips already-applied versions tracked in
@@ -47,7 +47,7 @@ $applied_count = 0
 $skipped_count = 0
 
 foreach ($file in $migFiles) {
-    # Extract version from filename: V002__create_chinook_schema.sql → 002
+    # Extract version from filename: V002__create_chinook_schema.sql -> 002
     if ($file.Name -notmatch '^V(\d+)__(.+)\.sql$') {
         Write-Log "Skipping non-standard filename: $($file.Name)" -Level WARN
         continue
@@ -56,12 +56,12 @@ foreach ($file in $migFiles) {
     $description = $Matches[2] -replace '_', ' '
 
     if ($applied -contains $version) {
-        Write-Log "SKIP  V$version — already applied ($description)" -Level DEBUG
+        Write-Log "SKIP  V$version --already applied ($description)" -Level DEBUG
         $skipped_count++
         continue
     }
 
-    Write-Log "APPLY V$version — $description" -Level INFO
+    Write-Log "APPLY V$version --$description" -Level INFO
 
     if (-not $DryRun) {
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
@@ -73,7 +73,7 @@ foreach ($file in $migFiles) {
         $ms = $sw.ElapsedMilliseconds
 
         if ($r.ExitCode -ne 0) {
-            Write-Log "FAILED V$version — $($r.Output)" -Level ERROR
+            Write-Log "FAILED V$version --$($r.Output)" -Level ERROR
             exit 1
         }
 
@@ -90,10 +90,10 @@ foreach ($file in $migFiles) {
             Write-Log "WARNING: Could not record migration in schema_migrations." -Level WARN
         }
 
-        Write-Log "DONE  V$version — applied in ${ms}ms" -Level SUCCESS
+        Write-Log "DONE  V$version --applied in ${ms}ms" -Level SUCCESS
         $r.Output | Where-Object { $_ -match '\S' } | ForEach-Object { Write-Log "  $_" -Level DEBUG }
     } else {
-        Write-Log "DRY   V$version — would apply $($file.Name)" -Level WARN
+        Write-Log "DRY   V$version --would apply $($file.Name)" -Level WARN
     }
 
     $applied_count++
