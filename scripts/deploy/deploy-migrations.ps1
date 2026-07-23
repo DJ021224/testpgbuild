@@ -81,11 +81,9 @@ foreach ($file in $migFiles) {
         $checksum = (Get-FileHash -Path $file.FullName -Algorithm MD5).Hash
 
         # Record in schema_migrations
-        $recSQL = @"
-INSERT INTO schema_migrations (version, description, script_name, execution_ms, checksum)
-VALUES ('$version', '$description', '$($file.Name)', $ms, '$checksum')
-ON CONFLICT (version) DO NOTHING;
-"@
+        $recSQL = "INSERT INTO schema_migrations (version, description, script_name, execution_ms, checksum) " +
+                  "VALUES ('$version', '$description', '$($file.Name)', $ms, '$checksum') " +
+                  "ON CONFLICT (version) DO NOTHING;"
         $recResult = Invoke-PSQLCommand -DBHost $DBHost -DBPort $DBPort -DBUser $DBUser `
                                          -DBPassword $DBPassword -DBName $DBName -Command $recSQL
         if ($recResult.ExitCode -ne 0) {
