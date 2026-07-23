@@ -131,29 +131,30 @@ pipeline {
                 ]) {
                     script {
                         if (params.ROLLBACK) {
+                            def steps = params.ROLLBACK_STEPS
                             powershell """
-                                & "$env:ROOT_DIR\\scripts\\deploy\\rollback.ps1" `
-                                    -DBHost     $env:DB_HOST `
-                                    -DBPort     $env:DB_PORT `
-                                    -DBUser     $env:DB_USER `
-                                    -DBPassword $env:DB_PASS `
-                                    -DBName     $env:DB_NAME `
-                                    -RootDir    $env:ROOT_DIR `
-                                    -LogDir     "$env:ROOT_DIR\\logs" `
-                                    -Steps      ${params.ROLLBACK_STEPS}
+                                & "\$env:ROOT_DIR\\scripts\\deploy\\rollback.ps1" `
+                                    -DBHost     \$env:DB_HOST `
+                                    -DBPort     \$env:DB_PORT `
+                                    -DBUser     \$env:DB_USER `
+                                    -DBPassword \$env:DB_PASS `
+                                    -DBName     \$env:DB_NAME `
+                                    -RootDir    \$env:ROOT_DIR `
+                                    -LogDir     "\$env:ROOT_DIR\\logs" `
+                                    -Steps      ${steps}
                                 if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }
                             """
                         } else {
                             def dryRunFlag = params.DRY_RUN ? '-DryRun' : ''
                             powershell """
-                                & "$env:ROOT_DIR\\scripts\\deploy\\deploy-migrations.ps1" `
-                                    -DBHost     $env:DB_HOST `
-                                    -DBPort     $env:DB_PORT `
-                                    -DBUser     $env:DB_USER `
-                                    -DBPassword $env:DB_PASS `
-                                    -DBName     $env:DB_NAME `
-                                    -RootDir    $env:ROOT_DIR `
-                                    -LogDir     "$env:ROOT_DIR\\logs" `
+                                & "\$env:ROOT_DIR\\scripts\\deploy\\deploy-migrations.ps1" `
+                                    -DBHost     \$env:DB_HOST `
+                                    -DBPort     \$env:DB_PORT `
+                                    -DBUser     \$env:DB_USER `
+                                    -DBPassword \$env:DB_PASS `
+                                    -DBName     \$env:DB_NAME `
+                                    -RootDir    \$env:ROOT_DIR `
+                                    -LogDir     "\$env:ROOT_DIR\\logs" `
                                     ${dryRunFlag}
                                 if (\$LASTEXITCODE -ne 0) { exit \$LASTEXITCODE }
                             """
