@@ -1,0 +1,29 @@
+# ── Logs ────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Environment / Secrets ────────────────────────────────────
+config/staging.env
+config/prod.env
+*.env
+!*.env.template
+
+# ── Build artifacts ──────────────────────────────────────────
+build/
+dist/
+
+# ── Windows ──────────────────────────────────────────────────
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ── IDE ──────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.suo
+*.user
+
+# ── Temp ─────────────────────────────────────────────────────
+*.tmp
+*.temp
