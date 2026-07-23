@@ -19,9 +19,12 @@ function Test-PostgreSQLConnection {
         [string]$DBName     = 'postgres'
     )
     $env:PGPASSWORD = $DBPassword
+    $saved = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
     $null = & psql -h $DBHost -p $DBPort -U $DBUser -d $DBName `
                    -c "SELECT 1;" 2>&1
     $ok = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $saved
     $env:PGPASSWORD = $null
     return $ok
 }
@@ -39,13 +42,15 @@ function Invoke-PSQLScript {
         return @{ ExitCode = 1; Output = "Script not found: $ScriptPath" }
     }
     $env:PGPASSWORD = $DBPassword
-    # Pipe through ForEach-Object to convert NativeCommandError (from psql NOTICE
-    # messages on stderr) to plain strings — prevents $ErrorActionPreference=Stop
-    # from treating informational NOTICE output as a fatal error.
+    # Temporarily lower error preference: psql writes NOTICE/WARNING to stderr
+    # which PowerShell 5.x with Stop preference turns into a terminating
+    # NativeCommandError even though $LASTEXITCODE is 0.
+    $saved = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
     $output   = & psql -h $DBHost -p $DBPort -U $DBUser -d $DBName `
-                       -v ON_ERROR_STOP=1 -f $ScriptPath 2>&1 |
-                ForEach-Object { "$_" }
+                       -v ON_ERROR_STOP=1 -f $ScriptPath 2>&1
     $exitCode = $LASTEXITCODE
+    $ErrorActionPreference = $saved
     $env:PGPASSWORD = $null
     return @{ ExitCode = $exitCode; Output = ($output -join "`n") }
 }
@@ -60,10 +65,12 @@ function Invoke-PSQLCommand {
         [string]$Command
     )
     $env:PGPASSWORD = $DBPassword
+    $saved = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
     $output   = & psql -h $DBHost -p $DBPort -U $DBUser -d $DBName `
-                       -v ON_ERROR_STOP=1 -c $Command 2>&1 |
-                ForEach-Object { "$_" }
+                       -v ON_ERROR_STOP=1 -c $Command 2>&1
     $exitCode = $LASTEXITCODE
+    $ErrorActionPreference = $saved
     $env:PGPASSWORD = $null
     return @{ ExitCode = $exitCode; Output = ($output -join "`n") }
 }
@@ -77,12 +84,13 @@ function Get-AppliedMigrations {
         [string]$DBName
     )
     $env:PGPASSWORD = $DBPassword
+    $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     $output = & psql -h $DBHost -p $DBPort -U $DBUser -d $DBName -t -A `
                      -c "SELECT version FROM schema_migrations ORDER BY version;" 2>&1
+    $ok = $LASTEXITCODE -eq 0
+    $ErrorActionPreference = $saved
     $env:PGPASSWORD = $null
-    if ($LASTEXITCODE -eq 0) {
-        return $output | Where-Object { $_ -match '\S' } | ForEach-Object { $_.Trim() }
-    }
+    if ($ok) { return $output | Where-Object { $_ -match '\S' } | ForEach-Object { $_.Trim() } }
     return @()
 }
 
@@ -95,10 +103,13 @@ function Test-DatabaseExists {
         [string]$DBName
     )
     $env:PGPASSWORD = $DBPassword
+    $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     $output = & psql -h $DBHost -p $DBPort -U $DBUser -d postgres -t -A `
                      -c "SELECT 1 FROM pg_database WHERE datname='$DBName';" 2>&1
+    $ok = ($LASTEXITCODE -eq 0 -and ($output -join "") -match "1")
+    $ErrorActionPreference = $saved
     $env:PGPASSWORD = $null
-    return ($LASTEXITCODE -eq 0 -and ($output -join "") -match "1")
+    return $ok
 }
 
 function Test-TableExists {
@@ -113,9 +124,12 @@ function Test-TableExists {
     )
     $sql = "SELECT 1 FROM information_schema.tables WHERE table_schema='$Schema' AND table_name='$TableName';"
     $env:PGPASSWORD = $DBPassword
+    $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     $output = & psql -h $DBHost -p $DBPort -U $DBUser -d $DBName -t -A -c $sql 2>&1
+    $ok = ($LASTEXITCODE -eq 0 -and ($output -join "") -match "1")
+    $ErrorActionPreference = $saved
     $env:PGPASSWORD = $null
-    return ($LASTEXITCODE -eq 0 -and ($output -join "") -match "1")
+    return $ok
 }
 
 function Get-RowCount {
@@ -128,10 +142,13 @@ function Get-RowCount {
         [string]$TableName
     )
     $env:PGPASSWORD = $DBPassword
+    $saved = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     $output = & psql -h $DBHost -p $DBPort -U $DBUser -d $DBName -t -A `
                      -c "SELECT COUNT(*) FROM $TableName;" 2>&1
+    $ok = $LASTEXITCODE -eq 0
+    $ErrorActionPreference = $saved
     $env:PGPASSWORD = $null
-    if ($LASTEXITCODE -eq 0) { return [int]($output -join "").Trim() }
+    if ($ok) { return [int]($output -join "").Trim() }
     return -1
 }
 
